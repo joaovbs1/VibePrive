@@ -1,0 +1,9 @@
+INSTRUCOES DE USO - VIBE PRIVE INGRESSOS
+
+1. Extraia esta pasta no seu computador.
+2. Suba os arquivos (public/index.html, package.json e server.js) para um repositorio no GitHub.
+3. No Render (render.com), crie um Web Service conectado a esse repositorio.
+4. Na aba Environment do Render, adicione duas variaveis:
+   - MP_ACCESS_TOKEN = (seu Access Token de producao do Mercado Pago)
+   - RESEND_API_KEY = (sua chave de API do Resend)
+5. Assim que o Render gerar o link do seu site, abra o arquivo server.js, troque 'https://SEU-SITE.onrender.com/webhook' pelo link real do seu site e atualize no GitHub.
