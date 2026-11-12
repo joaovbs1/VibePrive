@@ -125,7 +125,8 @@
             <p style="font-size: 13px; color: #555; margin-top: 15px;">Assim que o pagamento for aprovado, o ingresso será enviado automaticamente para <b>${emailCliente}</b>.</p>
           `;
         } else {
-          alert('Não foi possível gerar o Pix. Verifique os dados e tente novamente.');
+          alert('Motivo da recusa: ' + (data.error || 'Verifique os dados e tente novamente.'));
+
         }
       } catch (err) {
         alert('Erro de conexão ao gerar Pix.');
