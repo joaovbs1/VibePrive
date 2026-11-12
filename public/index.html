@@ -1,134 +1,37 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vibe Privê — Ingressos</title>
-  <script src="https://sdk.mercadopago.com/js/v2"></script>
-  <style>
-    body { font-family: Arial, sans-serif; background: #0d0d0d; color: #fff; margin: 0; padding: 20px; text-align: center; }
-    .container { max-width: 600px; margin: 0 auto; }
-    .badge { background: #d4af37; color: #000; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-    .card { background: #1a1a1a; border: 1px solid #333; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: left; }
-    .price { font-size: 22px; font-weight: bold; color: #d4af37; margin: 10px 0; }
-    button { background: #d4af37; color: #000; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; }
-    button:hover { background: #bfa030; }
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); overflow-y: auto; padding: 20px; box-sizing: border-box; }
-    .modal-content { background: #fff; color: #000; max-width: 480px; margin: 20px auto; padding: 25px; border-radius: 12px; text-align: left; position: relative; }
-    .close { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; }
-    input { width: 100%; padding: 10px; margin: 8px 0 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-    #pix_container { text-align: center; margin-top: 15px; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div style="font-size: 40px;">👑</div>
-    <h1>VIBE Privê</h1>
-    <p>Lote Limitado</p>
+app.post('/processar-pagamento', async (req, res) => {
+  try {
+    const { transaction_amount, nomeCliente, cpfCliente, emailCliente, tipoIngresso } = req.body;
 
-    <div class="card">
-      <span class="badge">Lote Limitado</span>
-      <h2>Ingresso Feminino</h2>
-      <p>Acesso individual feminino para a edição Vibe Privê.</p>
-      <div class="price">R$ 15,00 / unid.</div>
-      <button onclick="abrirCheckout('Ingresso Feminino', 15.00)">Selecionar ingresso</button>
-    </div>
-
-    <div class="card">
-      <span class="badge">Lote Limitado</span>
-      <h2>Ingresso Masculino</h2>
-      <p>Acesso individual masculino para a edição Vibe Privê.</p>
-      <div class="price">R$ 20,00 / unid.</div>
-      <button onclick="abrirCheckout('Ingresso Masculino', 20.00)">Selecionar ingresso</button>
-    </div>
-
-    <footer>© 2026 Vibe Privê. Todos os direitos reservados.</footer>
-  </div>
-
-  <div id="checkoutModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="fecharCheckout()">×</span>
-      <h2>Checkout Rápido</h2>
-      <p id="resumoIngresso" style="font-weight: bold; color: #333;"></p>
-
-      <label>Nome completo</label>
-      <input type="text" id="compradorNome" placeholder="Seu nome completo" required />
-
-      <label>E-mail (para receber o ingresso)</label>
-      <input type="email" id="compradorEmail" placeholder="seu@email.com" required />
-
-      <div id="paymentBrick_container"></div>
-      <div id="pix_container"></div>
-    </div>
-  </div>
-
-  <script>
-    const mp = new MercadoPago('APP_USR-4f7f26bb-689b-4a4a-a265-a92c2404d3a2', { locale: 'pt-BR' });
-    let brickController = null;
-    let ingressoSelecionado = { nome: '', valor: 0 };
-
-    async function abrirCheckout(nome, valor) {
-      ingressoSelecionado = { nome, valor };
-      document.getElementById('resumoIngresso').innerText = `${nome} — R$ ${valor.toFixed(2).replace('.', ',')}`;
-      document.getElementById('pix_container').innerHTML = '';
-      document.getElementById('checkoutModal').style.display = 'block';
-
-      if (brickController) {
-        await brickController.unmount();
-      }
-
-      const bricksBuilder = mp.bricks();
-      brickController = await bricksBuilder.create('payment', 'paymentBrick_container', {
-        initialization: { amount: valor },
-        customization: {
-          paymentMethods: { bankTransfer: 'all' }
+    const result = await payment.create({
+      body: {
+        transaction_amount: Number(transaction_amount),
+        description: `Vibe Privê - ${tipoIngresso}`,
+        payment_method_id: 'pix',
+        payer: {
+          email: emailCliente,
+          first_name: nomeCliente,
+          identification: {
+            type: 'CPF',
+            number: cpfCliente
+          }
         },
-        callbacks: {
-          onSubmit: ({ formData }) => {
-            const nomeCliente = document.getElementById('compradorNome').value;
-            const emailCliente = document.getElementById('compradorEmail').value;
+        metadata: {
+          nome_cliente: nomeCliente,
+          email_cliente: emailCliente,
+          tipo_ingresso: tipoIngresso
+        },
+        notification_url: 'https://onrender.com'
+      }
+    });
 
-            if (!nomeCliente || !emailCliente) {
-              alert('Por favor, preencha seu Nome e E-mail antes de pagar.');
-              return Promise.reject();
-            }
-
-            return fetch('/processar-pagamento', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                ...formData,
-                nomeCliente,
-                emailCliente,
-                tipoIngresso: ingressoSelecionado.nome
-              })
-            })
-            .then(res => res.json())
-            .then(data => {
-              if (data.qr_code_base64) {
-                document.getElementById('paymentBrick_container').innerHTML = '';
-                document.getElementById('pix_container').innerHTML = `
-                  <h3>Pague com Pix para liberar seu ingresso</h3>
-                  <img src="data:image/png;base64,${data.qr_code_base64}" style="width:200px;" />
-                  <p style="font-size:12px; word-break:break-all; background:#f4f4f4; padding:10px;">${data.qr_code}</p>
-                  <p>Assim que pagar, seu ingresso chegará no e-mail <b>${emailCliente}</b>.</p>
-                `;
-              } else if (data.status === 'approved') {
-                alert('Pagamento aprovado! Seu ingresso foi enviado para ' + emailCliente);
-                fecharCheckout();
-              } else {
-                alert('Status do pagamento: ' + data.status);
-              }
-            });
-          },
-          onError: (err) => console.error(err)
-        }
-      });
-    }
-
-    function fecharCheckout() {
-      document.getElementById('checkoutModal').style.display = 'none';
-    }
-  </script>
-</body>
-</html>
+    res.json({
+      id: result.id,
+      status: result.status,
+      qr_code: result.point_of_interaction?.transaction_data?.qr_code,
+      qr_code_base64: result.point_of_interaction?.transaction_data?.qr_code_base64
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao gerar Pix' });
+  }
+});
