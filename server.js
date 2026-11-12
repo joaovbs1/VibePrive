@@ -44,10 +44,12 @@ app.post('/processar-pagamento', async (req, res) => {
       qr_code: result.point_of_interaction?.transaction_data?.qr_code,
       qr_code_base64: result.point_of_interaction?.transaction_data?.qr_code_base64
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Erro ao gerar Pix' });
+    } catch (error) {
+    console.error('Erro MP:', JSON.stringify(error, null, 2));
+    const detalhe = error?.cause?.[0]?.description || error?.message || 'Erro desconhecido';
+    res.status(500).json({ error: detalhe });
   }
+  
 });
 
 // 2. Rota protegida que lista todos os ingressos PAGOS para a portaria
