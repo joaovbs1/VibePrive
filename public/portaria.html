@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portaria — Vibe Privê</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #0d0d0d; color: #fff; margin: 0; padding: 20px; }
+    .container { max-width: 700px; margin: 0 auto; }
+    h1 { color: #d4af37; text-align: center; }
+    input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #1a1a1a; color: #fff; font-size: 16px; box-sizing: border-box; }
+    button { background: #d4af37; color: #000; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; }
+    .card { background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 15px; margin-top: 12px; }
+    .tag { background: #1f7a1f; color: #fff; padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; }
+    .info { margin: 5px 0; font-size: 14px; color: #ccc; }
+    .checkin-btn { background: #333; color: #fff; margin-top: 10px; font-size: 14px; padding: 8px; }
+    .checked { opacity: 0.45; border-color: #1f7a1f; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>👑 Portaria Vibe Privê</h1>
+
+    <div id="loginBox">
+      <p>Digite a senha de acesso da portaria:</p>
+      <input type="password" id="senhaInput" placeholder="Senha da portaria" />
+      <button onclick="carregarLista()">Acessar Lista de Compradores</button>
+    </div>
+
+    <div id="painelBox" style="display: none;">
+      <input type="text" id="buscaInput" onkeyup="filtrarLista()" placeholder="🔍 Buscar por Nome ou CPF..." />
+      <button onclick="carregarLista()" style="background: #222; color: #d4af37; border: 1px solid #d4af37; margin-bottom: 10px;">🔄 Atualizar Lista</button>
+      <p id="contador" style="font-weight: bold; color: #d4af37;"></p>
+      <div id="listaContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    let compradores = [];
+    let entraram = JSON.parse(localStorage.getItem('vibe_entraram') || '[]');
+
+    async function carregarLista() {
+      const senha = document.getElementById('senhaInput').value;
+      const res = await fetch('/api/compradores', {
+        headers: { 'x-senha': senha }
+      });
+
+      if (res.status === 401) {
+        alert('Senha incorreta!');
+        return;
+      }
+
+      compradores = await res.json();
+      document.getElementById('loginBox').style.display = 'none';
+      document.getElementById('painelBox').style.display = 'block';
+      renderizar(compradores);
+    }
+
+    function renderizar(dados) {
+      document.getElementById('contador').innerText = `Total de ingressos pagos: ${dados.length}`;
+      const container = document.getElementById('listaContainer');
+      container.innerHTML = '';
+
+      dados.forEach(c => {
+        const jaEntrou = entraram.includes(String(c.id));
+        const div = document.createElement('div');
+        div.className = 'card' + (jaEntrou ? ' checked' : '');
+        div.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong style="font-size:17px; color:#fff;">${c.nome}</strong>
+            <span class="tag">${c.ingresso}</span>
+          </div>
+          <div class="info"><b>CPF:</b> ${c.cpf}</div>
+          <div class="info"><b>E-mail:</b> ${c.email}</div>
+          <div class="info"><b>Pago em:</b> ${c.data} (R$ ${c.valor})</div>
+          <button class="checkin-btn" onclick="marcarEntrada('${c.id}')">
+            ${jaEntrou ? '✅ Entrada Confirmada' : 'Marcar Entrada na Portaria'}
+          </button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function filtrarLista() {
+      const termo = document.getElementById('buscaInput').value.toLowerCase();
+      const filtrados = compradores.filter(c =>
+        c.nome.toLowerCase().includes(termo) || c.cpf.includes(termo)
+      );
+      renderizar(filtrados);
+    }
+
+    function marcarEntrada(id) {
+      id = String(id);
+      if (entraram.includes(id)) {
+        entraram = entraram.filter(item => item !== id);
+      } else {
+        entraram.push(id);
+      }
+      localStorage.setItem('vibe_entraram', JSON.stringify(entraram));
+      filtrarLista();
+    }
+  </script>
+</body>
+</html>
