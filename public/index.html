@@ -81,7 +81,7 @@
       brickController = await bricksBuilder.create('payment', 'paymentBrick_container', {
         initialization: { amount: valor },
         customization: {
-          paymentMethods: { creditCard: 'all', bankTransfer: 'all' }
+          paymentMethods: { bankTransfer: 'all' }
         },
         callbacks: {
           onSubmit: ({ formData }) => {
