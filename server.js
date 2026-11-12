@@ -1,6 +1,5 @@
 const express = require('express');
 const { MercadoPagoConfig, Payment } = require('mercadopago');
-const { Resend } = require('resend');
 
 const app = express();
 app.use(express.json());
@@ -8,8 +7,11 @@ app.use(express.static('public'));
 
 const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
 const payment = new Payment(client);
-const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Senha para você acessar a lista na portaria (pode alterar se quiser)
+const SENHA_PORTARIA = process.env.SENHA_PORTARIA || 'vibe2026';
+
+// 1. Gera o Pix no Mercado Pago salvando Nome, CPF, E-mail e Tipo de Ingresso
 app.post('/processar-pagamento', async (req, res) => {
   try {
     const { transaction_amount, nomeCliente, cpfCliente, emailCliente, tipoIngresso } = req.body;
@@ -29,10 +31,10 @@ app.post('/processar-pagamento', async (req, res) => {
         },
         metadata: {
           nome_cliente: nomeCliente,
+          cpf_cliente: cpfCliente,
           email_cliente: emailCliente,
           tipo_ingresso: tipoIngresso
-        },
-        notification_url: 'https://onrender.com'
+        }
       }
     });
 
@@ -45,6 +47,40 @@ app.post('/processar-pagamento', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro ao gerar Pix' });
+  }
+});
+
+// 2. Rota protegida que lista todos os ingressos PAGOS para a portaria
+app.get('/api/compradores', async (req, res) => {
+  const senha = req.headers['x-senha'];
+  if (senha !== SENHA_PORTARIA) {
+    return res.status(401).json({ error: 'Senha incorreta' });
+  }
+
+  try {
+    const searchResult = await payment.search({
+      options: {
+        status: 'approved',
+        limit: 100,
+        sort: 'date_created',
+        criteria: 'desc'
+      }
+    });
+
+    const lista = (searchResult.results || []).map(item => ({
+      id: item.id,
+      nome: item.metadata?.nome_cliente || item.payer?.first_name || 'Não informado',
+      cpf: item.metadata?.cpf_cliente || item.payer?.identification?.number || 'Não informado',
+      email: item.metadata?.email_cliente || item.payer?.email || 'Não informado',
+      ingresso: item.metadata?.tipo_ingresso || item.description || 'Ingresso',
+      valor: item.transaction_amount,
+      data: new Date(item.date_approved || item.date_created).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
+    }));
+
+    res.json(lista);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao buscar lista de compradores' });
   }
 });
 
