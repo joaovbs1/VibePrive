@@ -30,7 +30,7 @@ app.post('/processar-pagamento', async (req, res) => {
           email_cliente: emailCliente,
           tipo_ingresso: tipoIngresso
         },
-        notification_url: 'https://SEU-SITE.onrender.com/webhook'
+        notification_url: 'https://vibeprive.onrender.com/'
       }
     });
 
