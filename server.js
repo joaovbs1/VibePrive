@@ -69,15 +69,17 @@ app.get('/api/compradores', async (req, res) => {
       }
     });
 
-    const lista = (searchResult.results || []).map(item => ({
-      id: item.id,
-      nome: item.metadata?.nome_cliente || item.payer?.first_name || 'Não informado',
-      cpf: item.metadata?.cpf_cliente || item.payer?.identification?.number || 'Não informado',
-      email: item.metadata?.email_cliente || item.payer?.email || 'Não informado',
-      ingresso: item.metadata?.tipo_ingresso || item.description || 'Ingresso',
-      valor: item.transaction_amount,
-      data: new Date(item.date_approved || item.date_created).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
-    }));
+        const lista = (searchResult.results || [])
+      .filter(item => item.description && item.description.includes('Vibe Privê'))
+      .map(item => ({
+        id: item.id,
+        nome: item.metadata?.nome_cliente || item.payer?.first_name || 'Não informado',
+        cpf: item.metadata?.cpf_cliente || item.payer?.identification?.number || 'Não informado',
+        email: item.metadata?.email_cliente || item.payer?.email || 'Não informado',
+        ingresso: item.metadata?.tipo_ingresso || item.description || 'Ingresso',
+        valor: item.transaction_amount,
+        data: new Date(item.date_approved || item.date_created).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
+      }));
 
     res.json(lista);
   } catch (error) {
