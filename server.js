@@ -5,7 +5,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static('public'));
 
-const client = new MercadoPagoConfig({ accessToken: 'TEST-2415569059535810-111219-6c56db8adda17617d5646228372180c2-426725537' });
+const client = new MercadoPagoConfig({ accessToken: 'APP_USR-2415569059535810-111219-ce7469e74d922a1a6d69d375921b3ab2-426725537' });
 const payment = new Payment(client);
 
 // Senha para você acessar a lista na portaria (pode alterar se quiser)
