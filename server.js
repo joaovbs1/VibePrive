@@ -52,7 +52,7 @@ app.post('/processar-pagamento', async (req, res) => {
   
 });
 
-// 2. Rota protegida que lista todos os ingressos PAGOS para a portaria
+// 2. Rota protegida que lista até 500 ingressos PAGOS exclusivos do Vibe Privê
 app.get('/api/compradores', async (req, res) => {
   const senha = req.headers['x-senha'];
   if (senha !== SENHA_PORTARIA) {
@@ -60,16 +60,33 @@ app.get('/api/compradores', async (req, res) => {
   }
 
   try {
-    const searchResult = await payment.search({
-      options: {
-        status: 'approved',
-        limit: 100,
-        sort: 'date_created',
-        criteria: 'desc'
-      }
-    });
+    let todosResultados = [];
+    let offset = 0;
+    const limitePorPagina = 100;
 
-        const lista = (searchResult.results || [])
+    // Busca em lotes de 100 até completar 500 registros do Mercado Pago
+    while (offset < 500) {
+      const searchResult = await payment.search({
+        options: {
+          status: 'approved',
+          limit: limitePorPagina,
+          offset: offset,
+          sort: 'date_created',
+          criteria: 'desc'
+        }
+      });
+
+      const resultados = searchResult.results || [];
+      todosResultados = todosResultados.concat(resultados);
+
+      // Se vierem menos de 100 resultados, significa que já leu todo o histórico
+      if (resultados.length < limitePorPagina) {
+        break;
+      }
+      offset += limitePorPagina;
+    }
+
+    const lista = todosResultados
       .filter(item => item.description && item.description.includes('Vibe Privê'))
       .map(item => ({
         id: item.id,
