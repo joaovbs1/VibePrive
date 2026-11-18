@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portaria — Vibe Privê</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: radial-gradient(circle at top center, #081838 0%, #03050a 70%);
+      background-color: #03050a;
+      color: #f0f4f8;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .container { max-width: 700px; margin: 0 auto; }
+    h1 {
+      font-family: 'Cinzel Decorative', serif;
+      text-align: center;
+      font-size: 28px;
+      background: linear-gradient(180deg, #ffffff 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 10px rgba(0, 102, 255, 0.8));
+    }
+    input, select {
+      width: 100%;
+      padding: 13px;
+      margin: 8px 0 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(41, 152, 255, 0.4);
+      background: #070d19;
+      color: #fff;
+      font-size: 15px;
+      box-sizing: border-box;
+      outline: none;
+    }
+    input:focus, select:focus {
+      border-color: #2998ff;
+      box-shadow: 0 0 12px rgba(41, 152, 255, 0.4);
+    }
+    button {
+      background: linear-gradient(135deg, #0055ff 0%, #0099ff 100%);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 13px 20px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 0 15px rgba(0, 119, 255, 0.5);
+      margin-bottom: 10px;
+    }
+    .btn-secundario {
+      background: #0a101d;
+      color: #38bdf8;
+      border: 1px solid #2998ff;
+      box-shadow: none;
+    }
+    .btn-verde {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+    }
+    .card {
+      background: rgba(10, 16, 30, 0.9);
+      border: 1px solid rgba(41, 152, 255, 0.35);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 14px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+    }
+    .tag {
+      background: linear-gradient(90deg, #0044cc, #0088ff);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .tag-manual {
+      background: linear-gradient(90deg, #047857, #10b981);
+    }
+    .info { margin: 6px 0; font-size: 14px; color: #cbd5e1; }
+    .checkin-btn {
+      background: #0f172a;
+      border: 1px solid #2998ff;
+      color: #38bdf8;
+      margin-top: 12px;
+      margin-bottom: 0;
+      font-size: 13px;
+      padding: 10px;
+      box-shadow: none;
+    }
+    .checked {
+      opacity: 0.45;
+      border-color: #10b981;
+    }
+    .checked .checkin-btn {
+      background: #064e3b;
+      border-color: #10b981;
+      color: #a7f3d0;
+    }
+    .box-manual {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid #10b981;
+      border-radius: 12px;
+      padding: 18px;
+      margin: 12px 0 18px;
+      display: none;
+    }
+    label { font-size: 13px; color: #94a3b8; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Portaria Vibe Privê</h1>
+
+    <div id="loginBox">
+      <p style="color:#94a3b8; font-size:14px;">Digite a senha de acesso da portaria:</p>
+      <input type="password" id="senhaInput" placeholder="Senha da portaria" />
+      <button onclick="carregarLista()">Acessar Lista de Compradores</button>
+    </div>
+
+    <div id="painelBox" style="display: none;">
+      <button class="btn-verde" onclick="alternarFormManual()">+ Adicionar Pessoa (Dinheiro / Manual)</button>
+
+      <!-- Formulário de cadastro manual -->
+      <div id="formManualBox" class="box-manual">
+        <h3 style="margin-top:0; color:#34d399;">Novo Cadastro na Portaria</h3>
+        
+        <label>Nome completo *</label>
+        <input type="text" id="manualNome" placeholder="Nome do participante" />
+
+        <label>CPF (opcional)</label>
+        <input type="text" id="manualCpf" placeholder="00000000000" maxlength="11" />
+
+        <label>Tipo de Ingresso / Pagamento</label>
+        <select id="manualTipo">
+          <option value="Ingresso Feminino|15">Ingresso Feminino — R$ 15,00 (Dinheiro)</option>
+          <option value="Ingresso Masculino|20">Ingresso Masculino — R$ 20,00 (Dinheiro)</option>
+          <option value="Cortesia / VIP|0">Cortesia / Lista VIP — R$ 0,00</option>
+        </select>
+
+        <button class="btn-verde" onclick="salvarPessoaManual()">Salvar na Lista</button>
+        <button class="btn-secundario" onclick="alternarFormManual()" style="margin-bottom:0;">Cancelar</button>
+      </div>
+
+      <input type="text" id="buscaInput" onkeyup="filtrarLista()" placeholder="🔍 Buscar por Nome ou CPF..." />
+      <button class="btn-secundario" onclick="carregarLista()">🔄 Atualizar Lista do Pix</button>
+      
+      <p id="contador" style="font-weight: bold; color: #38bdf8; margin-top: 15px;"></p>
+      <div id="listaContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    let compradoresPix = [];
+    let entraram = JSON.parse(localStorage.getItem('vibe_entraram') || '[]');
+    let manuais = JSON.parse(localStorage.getItem('vibe_manuais') || '[]');
+
+    function alternarFormManual() {
+      const box = document.getElementById('formManualBox');
+      box.style.display = box.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function salvarPessoaManual() {
+      const nome = document.getElementById('manualNome').value.trim();
+      const cpf = document.getElementById('manualCpf').value.replace(/\D/g, '') || 'Não informado';
+      const tipoSelecionado = document.getElementById('manualTipo').value.split('|');
+
+      if (!nome) {
+        alert('Digite pelo menos o nome da pessoa.');
+        return;
+      }
+
+      const novoRegistro = {
+        id: 'MANUAL-' + Date.now(),
+        nome: nome,
+        cpf: cpf,
+        email: 'Pagamento presencial / Manual',
+        ingresso: tipoSelecionado[0],
+        valor: Number(tipoSelecionado[1]),
+        data: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+        manual: true
+      };
+
+      manuais.unshift(novoRegistro);
+      localStorage.setItem('vibe_manuais', JSON.stringify(manuais));
+
+      document.getElementById('manualNome').value = '';
+      document.getElementById('manualCpf').value = '';
+      alternarFormManual();
+      filtrarLista();
+    }
+
+    function removerManual(id) {
+      if (confirm('Deseja remover este cadastro manual da lista?')) {
+        manuais = manuais.filter(m => m.id !== id);
+        localStorage.setItem('vibe_manuais', JSON.stringify(manuais));
+        filtrarLista();
+      }
+    }
+
+    async function carregarLista() {
+      const senha = document.getElementById('senhaInput').value;
+      const res = await fetch('/api/compradores', {
+        headers: { 'x-senha': senha }
+      });
+
+      if (res.status === 401) {
+        alert('Senha incorreta!');
+        return;
+      }
+
+      compradoresPix = await res.json();
+      document.getElementById('loginBox').style.display = 'none';
+      document.getElementById('painelBox').style.display = 'block';
+      filtrarLista();
+    }
+
+    function obterListaCompleta() {
+      return [...manuais, ...compradoresPix];
+    }
+
+    function renderizar(dados) {
+      const totalGeral = obterListaCompleta().length;
+      document.getElementById('contador').innerText = `Total na lista: ${totalGeral} (${compradoresPix.length} Pix • ${manuais.length} Manuais)`;
+      
+      const container = document.getElementById('listaContainer');
+      container.innerHTML = '';
+
+      dados.forEach(c => {
+        const jaEntrou = entraram.includes(String(c.id));
+        const div = document.createElement('div');
+        div.className = 'card' + (jaEntrou ? ' checked' : '');
+        div.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+            <strong style="font-size:17px; color:#fff;">${c.nome}</strong>
+            <span class="tag ${c.manual ? 'tag-manual' : ''}">${c.manual ? '💵 ' + c.ingresso : c.ingresso}</span>
+          </div>
+          <div class="info"><b>CPF:</b> ${c.cpf}</div>
+          <div class="info"><b>Origem:</b> ${c.email}</div>
+          <div class="info"><b>Registrado em:</b> ${c.data} (R$ ${c.valor})</div>
+          <button class="checkin-btn" onclick="marcarEntrada('${c.id}')">
+            ${jaEntrou ? '✅ Entrada Confirmada' : 'Marcar Entrada na Portaria'}
+          </button>
+          ${c.manual ? `<div style="text-align:right; margin-top:8px;"><a href="#" onclick="removerManual('${c.id}'); return false;" style="color:#f87171; font-size:12px;">Excluir registro manual</a></div>` : ''}
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function filtrarLista() {
+      const termo = document.getElementById('buscaInput').value.toLowerCase();
+      const todos = obterListaCompleta();
+      const filtrados = todos.filter(c =>
+        c.nome.toLowerCase().includes(termo) || c.cpf.includes(termo)
+      );
+      renderizar(filtrados);
+    }
+
+    function marcarEntrada(id) {
+      id = String(id);
+      if (entraram.includes(id)) {
+        entraram = entraram.filter(item => item !== id);
+      } else {
+        entraram.push(id);
+      }
+      localStorage.setItem('vibe_entraram', JSON.stringify(entraram));
+      filtrarLista();
+    }
+  </script>
+</body>
+</html>

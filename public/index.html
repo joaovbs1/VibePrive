@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vibe Privê — Ingressos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #03050a;
+      --card-bg: rgba(10, 16, 30, 0.85);
+      --neon-blue: #0066ff;
+      --electric-cyan: #2998ff;
+      --silver-light: #f0f4f8;
+      --silver-mid: #94a3b8;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: radial-gradient(circle at top center, #081838 0%, #03050a 65%);
+      background-color: var(--bg-dark);
+      color: var(--silver-light);
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    .logo-wrapper {
+      margin: 10px auto 15px;
+    }
+    .logo-img {
+      max-width: 260px;
+      width: 80%;
+      border-radius: 16px;
+      filter: drop-shadow(0 0 18px rgba(0, 102, 255, 0.65));
+    }
+
+    .brand-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      margin: 10px 0 5px;
+      background: linear-gradient(180deg, #ffffff 0%, #b8c6db 50%, #64748b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 10px rgba(0, 102, 255, 0.8));
+    }
+
+    .subtitle {
+      color: var(--electric-cyan);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 25px;
+      text-shadow: 0 0 8px rgba(41, 152, 255, 0.5);
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid rgba(41, 152, 255, 0.35);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(0, 102, 255, 0.12);
+      border-radius: 16px;
+      padding: 24px;
+      margin: 22px 0;
+      text-align: left;
+      backdrop-filter: blur(8px);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .card:hover {
+      border-color: var(--electric-cyan);
+      box-shadow: 0 8px 32px rgba(0, 102, 255, 0.25), inset 0 0 20px rgba(0, 102, 255, 0.2);
+    }
+
+    .badge {
+      background: linear-gradient(90deg, #0044cc, #0088ff);
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 0 10px rgba(0, 119, 255, 0.6);
+    }
+
+    .card h2 {
+      margin: 14px 0 6px;
+      font-size: 22px;
+      color: #fff;
+      letter-spacing: 0.5px;
+    }
+
+    .card p {
+      color: var(--silver-mid);
+      font-size: 14px;
+      margin: 0 0 15px;
+    }
+
+    .price {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(180deg, #ffffff 20%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 12px 0 18px;
+    }
+
+    button {
+      background: linear-gradient(135deg, #0055ff 0%, #0099ff 100%);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      width: 100%;
+      box-shadow: 0 0 16px rgba(0, 119, 255, 0.55);
+      transition: all 0.2s;
+    }
+    button:hover {
+      background: linear-gradient(135deg, #0066ff 0%, #33adff 100%);
+      box-shadow: 0 0 24px rgba(41, 152, 255, 0.85);
+      transform: translateY(-1px);
+    }
+    button:disabled {
+      background: #1e293b;
+      color: #64748b;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    footer {
+      margin-top: 35px;
+      font-size: 12px;
+      color: #475569;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(2, 4, 10, 0.92);
+      backdrop-filter: blur(6px);
+      overflow-y: auto;
+      padding: 20px;
+      box-sizing: border-box;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: #0a101d;
+      color: #f8fafc;
+      border: 1px solid var(--electric-cyan);
+      box-shadow: 0 0 30px rgba(0, 102, 255, 0.45);
+      max-width: 440px;
+      margin: 20px auto;
+      padding: 26px;
+      border-radius: 16px;
+      text-align: left;
+      position: relative;
+    }
+
+    .close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 26px;
+      color: var(--silver-mid);
+      cursor: pointer;
+    }
+    .close:hover { color: #fff; }
+
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--silver-mid);
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 6px 0 16px;
+      border: 1px solid #1e293b;
+      background: #04070f;
+      color: #fff;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 15px;
+      outline: none;
+    }
+    input:focus {
+      border-color: var(--electric-cyan);
+      box-shadow: 0 0 10px rgba(41, 152, 255, 0.35);
+    }
+
+    #pix_container {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .copia-cola {
+      font-size: 12px;
+      word-break: break-all;
+      background: #04070f;
+      color: #93c5fd;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px dashed var(--electric-cyan);
+      margin: 12px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo-wrapper">
+      <img src="/logo.png" alt="Vibe Privê" class="logo-img" onerror="this.style.display='none'; document.getElementById('fallbackTitle').style.display='block';" />
+      <h1 id="fallbackTitle" class="brand-title" style="display:none;">VIBE PRIVÊ</h1>
+    </div>
+    <p class="subtitle">Participante Fundador • Lote Limitado</p>
+
+    <div class="card">
+      <span class="badge">Lote Limitado</span>
+      <h2>Ingresso Feminino</h2>
+      <p>Acesso individual feminino para a edição Vibe Privê.</p>
+      <div class="price">R$ 15,00 / unid.</div>
+      <button onclick="abrirCheckout('Ingresso Feminino', 15.00)">Comprar com Pix</button>
+    </div>
+
+    <div class="card">
+      <span class="badge">Lote Limitado</span>
+      <h2>Ingresso Masculino</h2>
+      <p>Acesso individual masculino para a edição Vibe Privê.</p>
+      <div class="price">R$ 20,00 / unid.</div>
+      <button onclick="abrirCheckout('Ingresso Masculino', 20.00)">Comprar com Pix</button>
+    </div>
+
+    <footer>© 2026 Vibe Privê. Todos os direitos reservados.</footer>
+  </div>
+
+  <!-- Modal Checkout Pix -->
+  <div id="checkoutModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="fecharCheckout()">×</span>
+      <h2 style="margin-top:0; color:#fff;">Pagamento via Pix</h2>
+      <p id="resumoIngresso" style="font-weight: 700; color: var(--electric-cyan); margin-bottom: 18px;"></p>
+
+      <div id="formularioPix">
+        <label>Nome completo</label>
+        <input type="text" id="compradorNome" placeholder="Seu nome completo" required />
+
+        <label>CPF (apenas números)</label>
+        <input type="text" id="compradorCpf" placeholder="00000000000" maxlength="11" required />
+
+        <label>E-mail</label>
+        <input type="email" id="compradorEmail" placeholder="seu@email.com" required />
+
+        <button id="btnGerarPix" onclick="gerarPix()">Gerar QR Code Pix</button>
+      </div>
+
+      <div id="pix_container"></div>
+    </div>
+  </div>
+
+  <script>
+    let ingressoSelecionado = { nome: '', valor: 0 };
+
+    function abrirCheckout(nome, valor) {
+      ingressoSelecionado = { nome, valor };
+      document.getElementById('resumoIngresso').innerText = `${nome} — R$ ${valor.toFixed(2).replace('.', ',')}`;
+      document.getElementById('formularioPix').style.display = 'block';
+      document.getElementById('pix_container').innerHTML = '';
+      document.getElementById('checkoutModal').style.display = 'block';
+    }
+
+    function fecharCheckout() {
+      document.getElementById('checkoutModal').style.display = 'none';
+    }
+
+    async function gerarPix() {
+      const nomeCliente = document.getElementById('compradorNome').value.trim();
+      const cpfCliente = document.getElementById('compradorCpf').value.replace(/\D/g, '');
+      const emailCliente = document.getElementById('compradorEmail').value.trim();
+      const btn = document.getElementById('btnGerarPix');
+
+      if (!nomeCliente || cpfCliente.length !== 11 || !emailCliente) {
+        alert('Preencha corretamente seu Nome, CPF (11 dígitos) e E-mail.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = 'Gerando Pix...';
+
+      try {
+        const res = await fetch('/processar-pagamento', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            transaction_amount: ingressoSelecionado.valor,
+            nomeCliente,
+            cpfCliente,
+            emailCliente,
+            tipoIngresso: ingressoSelecionado.nome
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.qr_code_base64) {
+          document.getElementById('formularioPix').style.display = 'none';
+          document.getElementById('pix_container').innerHTML = `
+            <h3 style="color: #38bdf8; margin-top: 0;">Escaneie o QR Code no app do seu banco</h3>
+            <div style="background: #fff; padding: 12px; display: inline-block; border-radius: 12px; box-shadow: 0 0 20px rgba(0, 102, 255, 0.5);">
+              <img src="data:image/png;base64,${data.qr_code_base64}" style="width:200px; display:block;" />
+            </div>
+            <p style="margin: 14px 0 4px; font-weight: bold; font-size: 13px;">Ou use o Pix Copia e Cola:</p>
+            <div class="copia-cola" id="codigoPixTexto">${data.qr_code}</div>
+            <button onclick="copiarCodigoPix()">Copiar Código Pix</button>
+            <p style="font-size: 13px; color: #cbd5e1; margin-top: 16px; line-height: 1.5;">
+              ✅ Assim que o pagamento for concluído, seu nome e CPF estarão liberados automaticamente na <b>portaria do evento</b>. Apresente um documento com foto na entrada.
+            </p>
+          `;
+        } else {
+          alert('Motivo da recusa: ' + (data.error || 'Verifique os dados e tente novamente.'));
+        }
+      } catch (err) {
+        alert('Erro de conexão ao gerar Pix.');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Gerar QR Code Pix';
+      }
+    }
+
+    function copiarCodigoPix() {
+      const codigo = document.getElementById('codigoPixTexto').innerText;
+      navigator.clipboard.writeText(codigo);
+      alert('Código Pix copiado! Cole na área Pix do aplicativo do seu banco.');
+    }
+  </script>
+</body>
+</html>
